@@ -1,7 +1,7 @@
 #ifndef _3CCB_INPUT_PARSE_
 #define _3CCB_INPUT_PARSE_
 
-
+#include "../utils/Time.h"
 
 /* The "tagged" name, not the actual account name. */
 #define BOT_NAME "bot"
@@ -10,8 +10,7 @@
 
 typedef struct InputData
 {
-	/* 9 - Assuming it is always formatted as 'HH:MM:SS' + '\0'. */
-	char serialised_time[9];
+	DateTime date;
 	
 	struct Player
 	{

@@ -6,6 +6,9 @@ CC="gcc"
 STD_LIBS=""
 LIBS="-lX11 -lXtst -lsqlite3"
 OPTS="-Wextra -Wall -o Builds/3CCB-Debug"
-CFLAGS="-std=c89 -pedantic -g"
+CFLAGS="-std=c89 -pedantic -g -Wno-unused-parameter -Wno-unused-variable"
 
-$CC main.c utils/String.c input/Parse.c $CFLAGS $STD_LIBS $LIBS $OPTS;
+$CC main.c \
+    utils/String.c utils/Time.c \
+    input/Parse.c input/Stream.c \
+    $CFLAGS $STD_LIBS $LIBS $OPTS;

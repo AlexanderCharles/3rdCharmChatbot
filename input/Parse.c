@@ -81,9 +81,11 @@ unsigned int
 ParseTimestamp(InputData* io_inputData, char* i_line)
 {
 	int firstSpaceIndex;
+	char timestampBuffer[9] = { 0 };
 	
 	assert((firstSpaceIndex = ScanForToken(i_line, ' ')) >= 0);
-	strncpy(io_inputData->serialised_time, i_line, firstSpaceIndex);
+	strncpy(timestampBuffer, i_line, firstSpaceIndex);
+	io_inputData->date = DateTimeCreateFromTimestamp(timestampBuffer);
 	
 	return(firstSpaceIndex + 1);
 }
@@ -99,7 +101,7 @@ ParseAccountType(InputData* io_inputData, char* i_line)
 		char digitBuffer[3] = { 0 };
 		
 		assert((closingBracketIndex = ScanForToken(i_line, '>')) >= 0);
-		size = i_line[closingBracketIndex - 2] == '=' ? 2 : 1;
+		size = i_line[closingBracketIndex - 2] == '=' ? 1 : 2;
 		strncpy(digitBuffer, &i_line[closingBracketIndex - size], size);
 		
 		assert(StrIsNumeric(digitBuffer) == true);
