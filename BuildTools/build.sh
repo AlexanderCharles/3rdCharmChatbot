@@ -1,6 +1,6 @@
 #!/bin/bash
 
-mkdir -p Builds/;
+mkdir -p Build/;
 
 CC="gcc"
 STD_LIBS=""
