@@ -1,0 +1,9 @@
+{
+	"reactions":
+	[
+		{ "input": "ping", "output": "pong" },
+		{ "input": [ "hello", "hi" ], "output": [ "Hi!", "Hello <name>", "Good day" ] },
+		{ "input_code": 14,    "output": "Gzzz!" },
+		{ "input_code": 10,    "output": "<name> is an expert quester!" },
+	]
+}

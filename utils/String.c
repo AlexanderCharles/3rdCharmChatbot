@@ -2,6 +2,7 @@
 #include "String.h"
 
 #include <string.h>
+#include <ctype.h>
 
 
 
@@ -234,3 +235,46 @@ IsNumeric(char i_token)
 	return(i_token >= '0' && i_token <= '9');
 }
 
+
+
+char*
+stristr(const char* i_a, const char* i_b)
+{
+	const char* p1 = i_a;
+	const char* p2 = i_b;
+	const char* r = *p2 == 0 ? i_a : 0;
+	
+	while (*p1 != 0 && * p2 != 0)
+	{
+		if (toupper((unsigned char) *p1) == toupper((unsigned char) *p2))
+		{
+			if (r == 0)
+			{
+				r = p1;
+			}
+			p2++;
+		}
+		else
+		{
+			p2 = i_b;
+			if (r != 0)
+			{
+				p1 = r + 1;
+			}
+			
+			if (toupper((unsigned char)*p1) == toupper((unsigned char)*p2))
+			{
+				r = p1;
+				p2++;
+			}
+			else
+			{
+				r = 0;
+			}
+		}
+		
+		p1++;
+	}
+	
+	return *p2 == 0 ? (char*)r : 0;
+}

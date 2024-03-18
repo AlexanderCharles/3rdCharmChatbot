@@ -24,6 +24,6 @@ bool IsWhitespace  (char);
 bool IsAlphanumeric(char);
 bool IsNumeric     (char);
 
-
+char* stristr(const char*, const char*);
 
 #endif

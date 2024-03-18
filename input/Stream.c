@@ -68,7 +68,7 @@ StreamInit(const char* i_loggedInAs)
 }
 
 void
-StreamProcess(StreamContext* io_streamContext)
+StreamProcess(StreamContext* io_streamContext, struct ReactionContext* i_react)
 {
 	char linesRead[BATCH_SIZE][256] = { 0 };
 	int  linesReadCount, i;
@@ -91,8 +91,10 @@ StreamProcess(StreamContext* io_streamContext)
 		if (DateTimeDiff(io_streamContext->last_message.date,
 		                 parsed.date) <= 0)
 		{
-			printf("\t%s", linesRead[i]);
-			/* TODO: do something with the line */
+#if 0
+			if (parsed.type = INVALID
+#endif
+			React(i_react, &parsed);
 		}
 		
 		++i;

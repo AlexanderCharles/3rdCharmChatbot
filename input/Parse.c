@@ -227,7 +227,9 @@ ParseMessage(InputData* io_inputData, char* i_line,
 {
 	if (io_inputData->type == MESSAGE || io_inputData->type == TAGGED_BOT)
 	{
-		strcpy(io_inputData->message, &i_line[i_cursor]);
+		/* +1 because the cursor is on the leading space character */
+		strncpy(io_inputData->message, &i_line[i_cursor + 1],
+		        strlen(&i_line[i_cursor + 1]) - 1);
 	}
 	else
 	{
