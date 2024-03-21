@@ -12,6 +12,8 @@
 
 #define INPUT_MSG_S 50
 
+#define DBG_NO_KEYBOARD 1
+
 /* This could be improved by adding a fuzzyfinder */
 
 
@@ -94,8 +96,8 @@ React(ReactionContext* i_react, InputData* i_parsedLine)
 		if (index == -1) return;
 		
 		BuildMessage(i_parsedLine, &i_react->reactions[index], messageBuffer);
-#if 0
-		printf("messageBuffer\n");
+#if DBG_NO_KEYBOARD
+		printf("%s\n", messageBuffer);
 #else
 		WriteMessage(messageBuffer);
 #endif
@@ -114,7 +116,7 @@ React(ReactionContext* i_react, InputData* i_parsedLine)
 		    i_parsedLine->type)
 		{
 			BuildMessage(i_parsedLine, &i_react->reactions[i], messageBuffer);
-#if 0
+#if DBG_NO_KEYBOARD
 			printf("%s\n", messageBuffer);
 #else
 			WriteMessage(messageBuffer);
@@ -133,7 +135,7 @@ React(ReactionContext* i_react, InputData* i_parsedLine)
 				{
 					BuildMessage(i_parsedLine, &i_react->reactions[i],
 					             messageBuffer);
-#if 0
+#if DBG_NO_KEYBOARD
 					printf("%s\n", messageBuffer);
 #else
 					WriteMessage(messageBuffer);

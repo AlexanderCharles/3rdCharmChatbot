@@ -73,7 +73,7 @@ StreamProcess(StreamContext* io_streamContext, struct ReactionContext* i_react)
 	char linesRead[BATCH_SIZE][256] = { 0 };
 	int  linesReadCount, i;
 	
-#if 0
+#if 1
 	char line[256] = { 0 };
 	
 	while (fgets(line, 256, io_streamContext->file_handle))

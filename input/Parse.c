@@ -130,7 +130,7 @@ ProbeInputDataType(InputData* io_inputData, char* i_line)
 	{
 		io_inputData->type = MESSAGE;
 		
-		if (strstr(i_line, BOT_NAME) != 0)
+		if (stristr(i_line, BOT_NAME) != 0)
 		{
 			io_inputData->type = TAGGED_BOT;
 		}

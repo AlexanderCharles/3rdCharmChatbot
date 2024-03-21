@@ -4,7 +4,7 @@
 #include "../utils/Time.h"
 
 /* The "tagged" name, not the actual account name. */
-#define BOT_NAME "3C"
+#define BOT_NAME "C3Butler"
 
 
 

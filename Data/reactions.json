@@ -7,24 +7,27 @@
 		{ "input_code": 4, "output": "Welcome to the clan!" },
 		
 		// PVP Death
-		{ "input_code": 6, "output": "Oof" },
+		{ "input_code": 6, "output": [ "Oof" , "RIP <PLAYER_NAME>!" ] },
 		
 		// PVP Kill
-		{ "input_code": 7, "output": ">:D" },
+		{ "input_code": 7, "output": [ "Deadly", ">:D" ] },
 		
 		// Drop
-		{ "input_code": 9, "output": "Nice!" },
+		{ "input_code": 9, "output": [ "Nice!", "$$$" ] },
 		
 		// Quest completed
-		{ "input_code": 10, "output": "<PLAYER_NAME> is an expert quester!" },
+		{ "input_code": 10, "output": [ "Nice", "Gz", "<PLAYER_NAME> is an expert quester!", "Gj" ] },
 		
-		// Diary completed 
-		{ "input_code": 11, "output": "Good job" },
+		// Diary completed
+		{ "input_code": 11, "output": [ "Gj <PLAYER_NAME>", "Gz", "Good job" ] },
+		
+		// Coll log completed 
+		{ "input_code": 12, "output": [ "Nice", "Gj", "Nice one :D" ] },
 		
 		// Level, Top level, Combat level
-		{ "input_code": [ 14, 15, 16 ], "output": "Gzzz!" },
+		{ "input_code": [ 14, 15, 16 ], "output": [ "Gzzz!", "Gz", "Gz!!", "Congrats", "Good job", "Gj" ] },
 		
 		// Boss PB
-		{ "input_code": 17, "output": "Speedy" }
+		{ "input_code": 17, "output": [ "Speedy", "Nice", "Good job" ]}
 	]
 }

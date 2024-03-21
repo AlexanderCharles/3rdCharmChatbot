@@ -13,9 +13,6 @@
 
 
 
-
-
-
 int
 main(int argc, char** args)
 {
@@ -51,6 +48,9 @@ main(int argc, char** args)
 	fileStreamData = StreamInit(loggedInAs);
 	reactionData   = ReactionsInit();
 	
+	InputData dummyInput = ParseInput("18:52:43 <img=41>Germanic: c3butler hello");
+	React(reactionData, &dummyInput);
+	return 0;
 	tv.tv_sec  = sleepDuration;
 	puts("Now running. You can press 'q' to quit.");
 	
