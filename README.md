@@ -1,13 +1,13 @@
 # 3rdCharmChatbot
 
 Requires runelite plugins / settings:
-	- Disabled 'Emojis' plugin
-	- Enable 'Chat Timestamps' plugin
-		- 'Timestamp Format' set to "[hh:mm:ss]"
-	- Install 'Chat Logger' plugin
-		- Enable 'Clan  Chat' and 'Folder Per User'
-	- Enable 'Logout Timer' plugin
-		- 'Idle timeout' set to 25 minutes
+- Disabled 'Emojis' plugin
+- Enable 'Chat Timestamps' plugin
+	- 'Timestamp Format' set to "[hh:mm:ss]"
+- Install 'Chat Logger' plugin
+	- Enable 'Clan  Chat' and 'Folder Per User'
+- Enable 'Logout Timer' plugin
+	- 'Idle timeout' set to 25 minutes
 
 
 Required packages:
