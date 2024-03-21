@@ -7,7 +7,7 @@
 		{ "input_code": 4, "output": "Welcome to the clan!" },
 		
 		// PVP Death
-		{ "input_code": 6, "output": [ "Oof" , "RIP <PLAYER_NAME>!" ] },
+		{ "input_code": 6, "output": [ "Oof" , "RIP <PLAYER_NAME>!", "Unlucky!" ] },
 		
 		// PVP Kill
 		{ "input_code": 7, "output": [ "Deadly", ">:D" ] },

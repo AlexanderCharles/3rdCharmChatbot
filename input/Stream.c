@@ -60,7 +60,7 @@ StreamInit(const char* i_loggedInAs)
 	{
 		/* Try flatpak dir */
 		sprintf(pathBuffer,
-		        "%s/.var/app/com.jagexLauncher.JagexLauncher/data/user_home/" \
+		        "%s/.var/app/com.jagexlauncher.JagexLauncher/data/user_home/" \
 		        ".runelite/chatlogs/%s/clan/latest.log",
 		        homeDir, i_loggedInAs);
 		result->file_handle = fopen(pathBuffer, "r");
