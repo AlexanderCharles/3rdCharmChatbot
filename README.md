@@ -11,7 +11,7 @@ Requires runelite plugins / settings:
 
 
 Required packages:
-	> libxtst-dev
+- libxtst-dev
 
 ---
 
