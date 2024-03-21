@@ -279,9 +279,35 @@ stristr(const char* i_a, const char* i_b)
 	return *p2 == 0 ? (char*)r : 0;
 }
 
+/* The memmove impl crashes like 1/100 of the time lol */
 char*
 strr(char* io_str, char* i_term, char* i_replacementTerm)
 {
+#if 0
+	/* this is a mess...... */
+	char  dirtyFix[512] = { 0 };
+	char* endOfTerm;
+	int   l, tlen;
+	int   startOfEndOfTerm, endOfTermDelta;
+	
+	l = strlen(io_str);
+	tlen = strlen(i_term);
+	
+	if ((endOfTerm = strstr(io_str, i_term)) != NULL)
+	{
+		endOfTermDelta = endOfTerm - io_str;
+		/* I.E. at the start of i_term */
+		startOfEndOfTerm = tlen - endOfTermDelta;
+		
+		/* - 1 so theres no < */
+		strncpy(dirtyFix, io_str, startOfEndOfTerm - 1);
+		strcpy(&dirtyFix[strlen(dirtyFix)], i_replacementTerm);
+		
+		strncpy(&dirtyFix[strlen(dirtyFix)], &io_str[endOfTermDelta + tlen],
+		        (l - 1) - (endOfTermDelta + tlen - 1));
+		strcpy(io_str, dirtyFix);
+	}
+#else
 	char* start;
 	int   l, tlen, rlen, dlen;
 	
@@ -293,12 +319,13 @@ strr(char* io_str, char* i_term, char* i_replacementTerm)
 		rlen = strlen(i_replacementTerm);
 		dlen = rlen - tlen;
 		
-		memmove(&start[rlen], &start[tlen], (int) (&io_str[l - 1] - &start[tlen]));
-		io_str[l + dlen - 1] = '\0';
+		memmove(&start[rlen], &start[tlen], (int) (&io_str[l] - &start[tlen]));
+		io_str[l + dlen] = '\0';
 		strncpy(start, i_replacementTerm, rlen);
 	}
 	
 	
+#endif
 	return(io_str);
 }
 

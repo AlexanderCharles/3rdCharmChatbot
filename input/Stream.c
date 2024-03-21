@@ -58,8 +58,18 @@ StreamInit(const char* i_loggedInAs)
 	result->file_handle = fopen(pathBuffer, "r");
 	if (result->file_handle == NULL)
 	{
-		printf("Could not open file '%s'\n", pathBuffer);
-		exit(-1);
+		/* Try flatpak dir */
+		sprintf(pathBuffer,
+		        "%s/.var/app/com.jagexLauncher.JagexLauncher/data/user_home/" \
+		        ".runelite/chatlogs/%s/clan/latest.log",
+		        homeDir, i_loggedInAs);
+		result->file_handle = fopen(pathBuffer, "r");
+		
+		if (result->file_handle == NULL)
+		{
+			printf("Could not open file '%s'\n", pathBuffer);
+			exit(-1);
+		}
 	}
 	
 	result->last_message.date = DateTimeNow();
@@ -73,7 +83,7 @@ StreamProcess(StreamContext* io_streamContext, struct ReactionContext* i_react)
 	char linesRead[BATCH_SIZE][256] = { 0 };
 	int  linesReadCount, i;
 	
-#if 1
+#if 0
 	char line[256] = { 0 };
 	
 	while (fgets(line, 256, io_streamContext->file_handle))
