@@ -21,12 +21,8 @@
 		// Diary completed 
 		{ "input_code": 11,    "output": "Good job" },
 		
-		// Level
-		{ "input_code": 14,    "output": "Gzzz!" },
-		// Total level
-		{ "input_code": 15,    "output": "Gzzz!" },
-		// Combat level
-		{ "input_code": 16,    "output": "Gzzz!" },
+		// Level, Top level, Combat level
+		{ "input_code": [ 14, 15, 16 ],    "output": "Gzzz!" },
 		
 		// Boss PB
 		{ "input_code": 17,    "output": "Speedy" }

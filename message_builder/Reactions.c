@@ -18,13 +18,13 @@
 
 typedef struct ReactionInput
 {
-	/* TODO: i need a mode for multiple anouncement codes. Things like levels,
-	 * combat levels, etc. will all have the same reactions */
 	enum
 	{
-		ANOUNCEMENT_CODE,
-		TRIGGER_MESSAGE,
-		TRIGGER_MULTI_MESSAGES
+		ANOUNCEMENT_CODE_SINGULAR,
+		ANOUNCEMENT_CODE_MULTI,
+		
+		MESSAGE_SINGULAR,
+		MESSAGE_MULTI
 	} input_type;
 	
 	union
@@ -32,7 +32,11 @@ typedef struct ReactionInput
 		struct
 		{
 			unsigned int count;
-			char**       messages;
+			union
+			{
+				char**        messages;
+				unsigned int* anouncement_codes;
+			} v;
 		} multi;
 		
 		char         message[INPUT_MSG_S];
@@ -41,8 +45,8 @@ typedef struct ReactionInput
 	
 	enum
 	{
-		SINGULAR_OUTPUT,
-		MULTI_OUTPUT
+		OUTPUT_SINGULAR,
+		OUTPUT_MULTI
 	} output_type;
 	
 	union
@@ -90,7 +94,11 @@ React(ReactionContext* i_react, InputData* i_parsedLine)
 		if (index == -1) return;
 		
 		BuildMessage(i_parsedLine, &i_react->reactions[index], messageBuffer);
+#if 0
+		printf("messageBuffer\n");
+#else
 		WriteMessage(messageBuffer);
+#endif
 	}
 	else if (i_parsedLine->type <= WELCOME ||
 	         i_parsedLine->type >= InputDataType_Last)
@@ -101,13 +109,39 @@ React(ReactionContext* i_react, InputData* i_parsedLine)
 	i = 0;
 	while (i < i_react->reaction_count)
 	{
-		if (i_react->reactions[i].input_type == ANOUNCEMENT_CODE &&
-			i_react->reactions[i].input.anouncement_code ==
-			i_parsedLine->type)
+		if (i_react->reactions[i].input_type == ANOUNCEMENT_CODE_SINGULAR &&
+		    i_react->reactions[i].input.anouncement_code ==
+		    i_parsedLine->type)
 		{
 			BuildMessage(i_parsedLine, &i_react->reactions[i], messageBuffer);
+#if 0
+			printf("%s\n", messageBuffer);
+#else
 			WriteMessage(messageBuffer);
+#endif
 			return;
+		}
+		else if (i_react->reactions[i].input_type == ANOUNCEMENT_CODE_MULTI)
+		{
+			unsigned int j;
+			
+			j = 0;
+			while (j < i_react->reactions[i].input.multi.count)
+			{
+				if (i_react->reactions[i].input.multi.v.anouncement_codes[j] ==
+				    i_parsedLine->type)
+				{
+					BuildMessage(i_parsedLine, &i_react->reactions[i],
+					             messageBuffer);
+#if 0
+					printf("%s\n", messageBuffer);
+#else
+					WriteMessage(messageBuffer);
+#endif
+					return;
+				}
+				++j;
+			}
 		}
 		++i;
 	}
@@ -136,18 +170,22 @@ void
 ReactionsClose(ReactionContext* io_react)
 {
 	int i;
-	if (io_react->reactions->input_type == TRIGGER_MULTI_MESSAGES)
+	i = 0;
+	while (i < (int) io_react->reactions->input.multi.count)
 	{
-		i = 0;
-		while (i < (int) io_react->reactions->input.multi.count)
+		if (io_react->reactions->input_type == MESSAGE_MULTI)
 		{
-			free(io_react->reactions->input.multi.messages[i]);
-			i++;
+			free(io_react->reactions->input.multi.v.messages[i]);
 		}
-		free(io_react->reactions->input.multi.messages);
+		if (io_react->reactions->input_type == ANOUNCEMENT_CODE_MULTI)
+		{
+			free(io_react->reactions->input.multi.v.anouncement_codes);
+		}
+		i++;
 	}
+	free(io_react->reactions->input.multi.v.messages);
 	
-	if (io_react->reactions->output_type == MULTI_OUTPUT)
+	if (io_react->reactions->output_type == OUTPUT_MULTI)
 	{
 		i = 0;
 		while (i < (int) io_react->reactions->output.multi.count)
@@ -277,7 +315,7 @@ ReadReactionInput(struct json_array_element_s* i_rowCursor)
 		{
 			struct json_string_s* right;
 			
-			result.input_type = TRIGGER_MESSAGE;
+			result.input_type = MESSAGE_SINGULAR;
 			right = column->value->payload;
 			strcpy(result.input.message, right->string);
 			assert(left->string_size < INPUT_MSG_S);
@@ -289,15 +327,16 @@ ReadReactionInput(struct json_array_element_s* i_rowCursor)
 			int i;
 			
 			i = 0;
-			result.input_type = TRIGGER_MULTI_MESSAGES;
+			result.input_type = MESSAGE_MULTI;
 			right = column->value->payload;
 			
-			result.input.multi.messages = malloc(sizeof(char*) * right->length);
+			result.input.multi.v.messages = malloc(sizeof(char*) *
+			                                       right->length);
 			while (i < (int) right->length)
 			{
-				result.input.multi.messages[i] =
+				result.input.multi.v.messages[i] =
 					malloc(sizeof(char) * INPUT_MSG_S);
-				memset(result.input.multi.messages[i], 0,
+				memset(result.input.multi.v.messages[i], 0,
 				       sizeof(char) * INPUT_MSG_S);
 				++i;
 			}
@@ -312,7 +351,7 @@ ReadReactionInput(struct json_array_element_s* i_rowCursor)
 				input = current->value->payload;
 				
 				assert(input->string_size < INPUT_MSG_S);
-				strcpy(result.input.multi.messages[result.input.multi.count++],
+				strcpy(result.input.multi.v.messages[result.input.multi.count++],
 				       input->string);
 				
 				current = current->next;
@@ -325,12 +364,43 @@ ReadReactionInput(struct json_array_element_s* i_rowCursor)
 	}
 	else if (strcmp(left->string, "input_code") == 0)
 	{
-		struct json_string_s* right;
-		
-		result.input_type = ANOUNCEMENT_CODE;
-		right = column->value->payload;
-		assert(column->value->type == json_type_number);
-		result.input.anouncement_code = atoi(right->string);
+		if (column->value->type == json_type_number)
+		{
+			struct json_string_s* right;
+			
+			result.input_type = ANOUNCEMENT_CODE_SINGULAR;
+			right = column->value->payload;
+			assert(column->value->type == json_type_number);
+			result.input.anouncement_code = atoi(right->string);
+		}
+		else if (column->value->type == json_type_array)
+		{
+			struct json_array_s*         right;
+			struct json_array_element_s* current;
+			
+			result.input_type = ANOUNCEMENT_CODE_MULTI;
+			right = column->value->payload;
+			
+			result.input.multi.v.anouncement_codes =
+				malloc(sizeof(unsigned int) * right->length);
+			memset(result.input.multi.v.anouncement_codes, 0,
+			       sizeof(unsigned int) * right->length);
+			
+			current = right->start;
+			
+			while (current != NULL)
+			{
+				struct json_string_s* input;
+				
+				assert(current->value->type == json_type_number);
+				input = current->value->payload;
+				
+				result.input.multi.v.anouncement_codes[result.input.multi.count++] =
+					atoi(input->string);
+				
+				current = current->next;
+			}
+		}
 	}
 	else
 	{
@@ -344,7 +414,7 @@ ReadReactionInput(struct json_array_element_s* i_rowCursor)
 	{
 		struct json_string_s* right;
 		
-		result.output_type = SINGULAR_OUTPUT;
+		result.output_type = OUTPUT_SINGULAR;
 		right = column->value->payload;
 		assert(right->string_size < OUTPUT_MSG_S);
 		strcpy(result.output.message, right->string);
@@ -356,7 +426,7 @@ ReadReactionInput(struct json_array_element_s* i_rowCursor)
 		int i;
 		
 		i = 0;
-		result.output_type = MULTI_OUTPUT;
+		result.output_type = OUTPUT_MULTI;
 		right = column->value->payload;
 		
 		result.output.multi.messages = malloc(sizeof(char*) * right->length);
@@ -397,7 +467,7 @@ ProduceOutput(ReactionInput* i_reactInput)
 	char* result;
 	
 	assert(i_reactInput);
-	if (i_reactInput->output_type == SINGULAR_OUTPUT)
+	if (i_reactInput->output_type == OUTPUT_SINGULAR)
 	{
 		return(i_reactInput->output.message);
 	}
@@ -425,14 +495,14 @@ MatchReactionToArrayIndex(ReactionContext* i_react,
 	
 	while (i < i_react->reaction_count)
 	{
-		if (i_react->reactions[i].input_type == TRIGGER_MESSAGE)
+		if (i_react->reactions[i].input_type == MESSAGE_SINGULAR)
 		{
 			if (stristr(i_msg, i_react->reactions[i].input.message) != NULL)
 			{
 				return(i);
 			}
 		}
-		else if (i_react->reactions[i].input_type == TRIGGER_MULTI_MESSAGES)
+		else if (i_react->reactions[i].input_type == MESSAGE_MULTI)
 		{
 			unsigned int j;
 			
@@ -440,7 +510,7 @@ MatchReactionToArrayIndex(ReactionContext* i_react,
 			while (j < i_react->reactions[i].input.multi.count)
 			{
 				if (stristr(i_msg,
-				    i_react->reactions[i].input.multi.messages[j]) != NULL)
+				    i_react->reactions[i].input.multi.v.messages[j]) != NULL)
 				{
 					return(i);
 				}

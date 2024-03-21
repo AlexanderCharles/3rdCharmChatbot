@@ -93,6 +93,7 @@ StreamProcess(StreamContext* io_streamContext, struct ReactionContext* i_react)
 		memset(line, 0, sizeof(char) * 256);
 		++i;
 	}
+	sleep(5);
 	exit(0);
 #else
 	i = 0;
