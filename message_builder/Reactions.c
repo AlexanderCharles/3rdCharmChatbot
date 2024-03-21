@@ -12,7 +12,7 @@
 
 #define INPUT_MSG_S 50
 
-#define DBG_NO_KEYBOARD 1
+#define DBG_NO_KEYBOARD 0
 
 /* This could be improved by adding a fuzzyfinder */
 
