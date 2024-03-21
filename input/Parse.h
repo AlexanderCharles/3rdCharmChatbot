@@ -4,7 +4,7 @@
 #include "../utils/Time.h"
 
 /* The "tagged" name, not the actual account name. */
-#define BOT_NAME "bot"
+#define BOT_NAME "3C"
 
 
 
@@ -26,7 +26,7 @@ typedef struct InputData
 			NORMAL = 0,
 			IM     = 2, HCIM = 10,
 			UIM    = 3,
-			LEAGUE = 22, /* No way to test this. */
+			LEAGUE = 22,
 			GIM    = 41,
 			HCGIM  = 42, UGIM = 43,
 			SPEED  = 52
@@ -61,9 +61,10 @@ typedef struct InputData
 		PERSONAL_BEST,
 		
 		/* Any new values need to be entered here. */
+		/* TODO: do combat achievement tasks:
+		 * <PLAYER_NAME> has completed an <TIER> combat task: <TASK NAME>.
+		 * */
 		
-		/* This is here because if more InputDataType values are added, it would
-		 * otherwise require other parts of the codebase to be updated. */
 		InputDataType_Last
 	} type;
 	

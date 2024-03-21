@@ -2,6 +2,7 @@
 #include "Reactions.h"
 
 #include "../utils/String.h"
+#include "../utils/Keyboard.h"
 
 /* https://github.com/sheredom/json.h */
 #include <json.h>
@@ -9,13 +10,16 @@
 #include <assert.h>
 #include <stdio.h>
 
-#define INPUT_MSG_COUNT  50
-#define OUTPUT_MSG_COUNT 200
+#define INPUT_MSG_S 50
+
+/* This could be improved by adding a fuzzyfinder */
 
 
 
 typedef struct ReactionInput
 {
+	/* TODO: i need a mode for multiple anouncement codes. Things like levels,
+	 * combat levels, etc. will all have the same reactions */
 	enum
 	{
 		ANOUNCEMENT_CODE,
@@ -31,7 +35,7 @@ typedef struct ReactionInput
 			char**       messages;
 		} multi;
 		
-		char         message[INPUT_MSG_COUNT];
+		char         message[INPUT_MSG_S];
 		unsigned int anouncement_code;
 	} input;
 	
@@ -49,7 +53,7 @@ typedef struct ReactionInput
 			char**       messages;
 		} multi;
 		
-		char message[OUTPUT_MSG_COUNT];
+		char message[OUTPUT_MSG_S];
 	} output;
 	
 } ReactionInput;
@@ -68,37 +72,44 @@ ReactionInput  ReadReactionInput(struct json_array_element_s*);
 
 char* ProduceOutput            (ReactionInput*);
 int   MatchReactionToArrayIndex(ReactionContext*, const char*);
+char* GetStartOfMessage        (char*);
 
 
 
 void
 React(ReactionContext* i_react, InputData* i_parsedLine)
 {
-	if (i_parsedLine->type > WELCOME &&
-	    i_parsedLine->type < InputDataType_Last)
-	{
-		unsigned int i;
-		
-		i = 0;
-		while (i < i_react->reaction_count)
-		{
-			if (i_react->reactions[i].input_type == ANOUNCEMENT_CODE &&
-			    i_react->reactions[i].input.anouncement_code ==
-			    i_parsedLine->type)
-			{
-				printf("%s\n", ProduceOutput(&i_react->reactions[i]));
-				return;
-			}
-			++i;
-		}
-	}
-	else if (i_parsedLine->type == TAGGED_BOT)
+	unsigned int i;
+	char messageBuffer[OUTPUT_MSG_S] = { 0 };
+	
+	if (i_parsedLine->type == TAGGED_BOT)
 	{
 		int index;
 		
 		index = MatchReactionToArrayIndex(i_react, i_parsedLine->message);
 		if (index == -1) return;
-		printf("'%s'\n", ProduceOutput(&i_react->reactions[index]));
+		
+		BuildMessage(i_parsedLine, &i_react->reactions[index], messageBuffer);
+		WriteMessage(messageBuffer);
+	}
+	else if (i_parsedLine->type <= WELCOME ||
+	         i_parsedLine->type >= InputDataType_Last)
+	{
+		return;
+	}
+	
+	i = 0;
+	while (i < i_react->reaction_count)
+	{
+		if (i_react->reactions[i].input_type == ANOUNCEMENT_CODE &&
+			i_react->reactions[i].input.anouncement_code ==
+			i_parsedLine->type)
+		{
+			BuildMessage(i_parsedLine, &i_react->reactions[i], messageBuffer);
+			WriteMessage(messageBuffer);
+			return;
+		}
+		++i;
 	}
 }
 
@@ -148,6 +159,28 @@ ReactionsClose(ReactionContext* io_react)
 	}
 	
 	free(io_react);
+}
+
+
+
+/* TODO: split the message up by adding newline chars, then handle this in
+ * Keyboard.c.
+ * There are a few other things too, i think i have more notes in Keyboard.c
+ * to go through, a few of them pertain to this func
+ * its possible backslashes could cause issues lol */
+void
+BuildMessage(InputData* i_parsedLine, ReactionInput* i_reaction,
+             char* o_msg)
+{
+	strcpy(o_msg, ProduceOutput(i_reaction));
+	if (strstr(o_msg, "<BOT_NAME>") != 0)
+	{
+		strr(o_msg, "<BOT_NAME>", BOT_NAME);
+	}
+	if (strstr(o_msg, "<PLAYER_NAME>") != 0)
+	{
+		strr(o_msg, "<PLAYER_NAME>", i_parsedLine->player.name);
+	}
 }
 
 
@@ -247,7 +280,7 @@ ReadReactionInput(struct json_array_element_s* i_rowCursor)
 			result.input_type = TRIGGER_MESSAGE;
 			right = column->value->payload;
 			strcpy(result.input.message, right->string);
-			assert(left->string_size < INPUT_MSG_COUNT);
+			assert(left->string_size < INPUT_MSG_S);
 		}
 		else if (column->value->type == json_type_array)
 		{
@@ -263,9 +296,9 @@ ReadReactionInput(struct json_array_element_s* i_rowCursor)
 			while (i < (int) right->length)
 			{
 				result.input.multi.messages[i] =
-					malloc(sizeof(char) * INPUT_MSG_COUNT);
+					malloc(sizeof(char) * INPUT_MSG_S);
 				memset(result.input.multi.messages[i], 0,
-				       sizeof(char) * INPUT_MSG_COUNT);
+				       sizeof(char) * INPUT_MSG_S);
 				++i;
 			}
 			
@@ -278,7 +311,7 @@ ReadReactionInput(struct json_array_element_s* i_rowCursor)
 				assert(current->value->type == json_type_string);
 				input = current->value->payload;
 				
-				assert(input->string_size < INPUT_MSG_COUNT);
+				assert(input->string_size < INPUT_MSG_S);
 				strcpy(result.input.multi.messages[result.input.multi.count++],
 				       input->string);
 				
@@ -313,7 +346,7 @@ ReadReactionInput(struct json_array_element_s* i_rowCursor)
 		
 		result.output_type = SINGULAR_OUTPUT;
 		right = column->value->payload;
-		assert(right->string_size < OUTPUT_MSG_COUNT);
+		assert(right->string_size < OUTPUT_MSG_S);
 		strcpy(result.output.message, right->string);
 	}
 	else if (column->value->type == json_type_array)
@@ -330,9 +363,9 @@ ReadReactionInput(struct json_array_element_s* i_rowCursor)
 		while (i < (int) right->length)
 		{
 			result.output.multi.messages[i] =
-				malloc(sizeof(char) * OUTPUT_MSG_COUNT);
+				malloc(sizeof(char) * OUTPUT_MSG_S);
 			memset(result.output.multi.messages[i], 0,
-			       sizeof(char) * OUTPUT_MSG_COUNT);
+			       sizeof(char) * OUTPUT_MSG_S);
 			++i;
 		}
 		
@@ -345,7 +378,7 @@ ReadReactionInput(struct json_array_element_s* i_rowCursor)
 			assert(current->value->type == json_type_string);
 			output = current->value->payload;
 			
-			assert(output->string_size < OUTPUT_MSG_COUNT);
+			assert(output->string_size < OUTPUT_MSG_S);
 			strcpy(result.output.multi.messages[result.output.multi.count++],
 			       output->string);
 			
@@ -379,25 +412,13 @@ ProduceOutput(ReactionInput* i_reactInput)
 	return(result);
 }
 
-char*
-GetStartOfMessage(char* io_msg)
-{
-	int l, bnl, index;
-	
-	l   = strlen(io_msg);
-	bnl = strlen(BOT_NAME);
-	if (l < (bnl + 2)) return (NULL);
-	
-	index = ScanForToken(io_msg, ' ');
-	return(&io_msg[index + 1]);
-}
 
 int
 MatchReactionToArrayIndex(ReactionContext* i_react,
                           const char* i_msg)
 {
 	unsigned int i;
-	char* start;
+	char*        start;
 	
 	i = 0;
 	assert((start = GetStartOfMessage((char*) i_msg)) != NULL);
@@ -430,6 +451,19 @@ MatchReactionToArrayIndex(ReactionContext* i_react,
 	}
 	
 	return(-1);
+}
+
+char*
+GetStartOfMessage(char* io_msg)
+{
+	int l, bnl, index;
+	
+	l   = strlen(io_msg);
+	bnl = strlen(BOT_NAME);
+	if (l < (bnl + 2)) return (NULL);
+	
+	index = ScanForToken(io_msg, ' ');
+	return(&io_msg[index + 1]);
 }
 
 

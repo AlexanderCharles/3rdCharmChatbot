@@ -1,9 +1,34 @@
 {
 	"reactions":
 	[
-		{ "input": "ping", "output": "pong" },
-		{ "input": [ "hello", "hi" ], "output": [ "Hi!", "Hello <name>", "Good day" ] },
+		{ "input": [ "hello", "hi" ], "output": [ "Hi!", "Hello <PLAYER_NAME>", "Good day" ] },
+		
+		// New clan member 
+		{ "input_code": 4, "output": "Welcome to the clan!" },
+		
+		// PVP Death
+		{ "input_code": 6, "output": "Oof" },
+		
+		// PVP Kill
+		{ "input_code": 7, "output": ">:D" },
+		
+		// Drop
+		{ "input_code": 9, "output": "Nice!" },
+		
+		// Quest completed
+		{ "input_code": 10,    "output": "<PLAYER_NAME> is an expert quester!" },
+		
+		// Diary completed 
+		{ "input_code": 11,    "output": "Good job" },
+		
+		// Level
 		{ "input_code": 14,    "output": "Gzzz!" },
-		{ "input_code": 10,    "output": "<name> is an expert quester!" },
+		// Total level
+		{ "input_code": 15,    "output": "Gzzz!" },
+		// Combat level
+		{ "input_code": 16,    "output": "Gzzz!" },
+		
+		// Boss PB
+		{ "input_code": 17,    "output": "Speedy" }
 	]
 }

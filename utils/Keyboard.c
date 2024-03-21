@@ -14,7 +14,7 @@
 /* 
  * It does not work with letters like þ/é/ß but it does not crash either, so
  * whatever lol.
- * TODO: need a banned words list
+ * TODO: need a banned words list, a spam-reduction timer
  * */
 
 /* It might be weird for this to contain the only global variable but I 
@@ -23,11 +23,11 @@ Display* gDisplay;
 
 
 
-void IssueKeyPress(unsigned int);
+void IssueKeyPress  (unsigned int);
 void IssueKeyRelease(unsigned int);
 
 KeySym GetKey(char);
-bool IsCaps(char);
+bool   IsCaps(char);
 
 
 
@@ -88,6 +88,7 @@ GetKey(char i_c)
 	return(XKeysymToKeycode(gDisplay, (KeySym) i_c));
 }
 
+/* isupper...? */
 bool
 IsCaps(char i_c)
 {

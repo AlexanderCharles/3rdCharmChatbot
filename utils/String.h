@@ -25,5 +25,6 @@ bool IsAlphanumeric(char);
 bool IsNumeric     (char);
 
 char* stristr(const char*, const char*);
+char* strr   (char*, char*, char*);
 
 #endif

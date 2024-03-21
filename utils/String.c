@@ -278,3 +278,27 @@ stristr(const char* i_a, const char* i_b)
 	
 	return *p2 == 0 ? (char*)r : 0;
 }
+
+char*
+strr(char* io_str, char* i_term, char* i_replacementTerm)
+{
+	char* start;
+	int   l, tlen, rlen, dlen;
+	
+	l = strlen(io_str);
+	
+	if ((start = strstr(io_str, i_term)) != NULL)
+	{
+		tlen = strlen(i_term);
+		rlen = strlen(i_replacementTerm);
+		dlen = rlen - tlen;
+		
+		memmove(&start[rlen], &start[tlen], (int) (&io_str[l - 1] - &start[tlen]));
+		io_str[l + dlen - 1] = '\0';
+		strncpy(start, i_replacementTerm, rlen);
+	}
+	
+	
+	return(io_str);
+}
+

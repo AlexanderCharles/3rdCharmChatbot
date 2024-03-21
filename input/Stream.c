@@ -73,6 +73,28 @@ StreamProcess(StreamContext* io_streamContext, struct ReactionContext* i_react)
 	char linesRead[BATCH_SIZE][256] = { 0 };
 	int  linesReadCount, i;
 	
+#if 1
+	char line[256] = { 0 };
+	
+	while (fgets(line, 256, io_streamContext->file_handle))
+	{
+		InputData parsed;
+		
+		if (strlen(line) < 1)
+		{
+			memset(line, 0, sizeof(char) * 256);
+			++i;
+			continue;
+		}
+		parsed = ParseInput(line);
+		
+		React(i_react, &parsed);
+		
+		memset(line, 0, sizeof(char) * 256);
+		++i;
+	}
+	exit(0);
+#else
 	i = 0;
 	linesReadCount = GetLines(io_streamContext->file_handle,
 	                          linesRead, BATCH_SIZE);
@@ -91,9 +113,6 @@ StreamProcess(StreamContext* io_streamContext, struct ReactionContext* i_react)
 		if (DateTimeDiff(io_streamContext->last_message.date,
 		                 parsed.date) <= 0)
 		{
-#if 0
-			if (parsed.type = INVALID
-#endif
 			React(i_react, &parsed);
 		}
 		
@@ -104,6 +123,7 @@ StreamProcess(StreamContext* io_streamContext, struct ReactionContext* i_react)
 	{
 		io_streamContext->last_message = ParseInput(linesRead[0]);
 	}
+#endif
 }
 
 void
@@ -160,6 +180,8 @@ GetLines(FILE* i_fp, char o_lines[][256], unsigned int i_lineCount)
 	
 	return(result);
 }
+
+
 
 bool
 SameMessage(InputData* i_a, InputData* i_b)
