@@ -26,8 +26,9 @@ Display* gDisplay;
 void IssueKeyPress  (unsigned int);
 void IssueKeyRelease(unsigned int);
 
-KeySym GetKey(char);
-bool   IsCaps(char);
+bool   ShouldCaps(char);
+KeySym GetKey    (char);
+bool   IsCaps    (char);
 
 
 
@@ -49,7 +50,8 @@ WriteMessage(const char* i_msg)
 	
 	while (i < s)
 	{
-		if ((isCaps = IsCaps(i_msg[i])) == true)
+		if ((isCaps = IsCaps(i_msg[i])) == true ||
+		    ShouldCaps(i_msg[i]) == true)
 		{
 			IssueKeyPress(shiftKeyCode);
 		}
@@ -80,6 +82,14 @@ IssueKeyRelease(unsigned int i_keyCode)
 {
 	XTestFakeKeyEvent(gDisplay, i_keyCode, false, 0);
 	XFlush(gDisplay);
+}
+
+
+
+bool
+ShouldCaps(char i_c)
+{
+	return(i_c == '!' || i_c == '$' || i_c == '%' || i_c == '&');
 }
 
 KeySym

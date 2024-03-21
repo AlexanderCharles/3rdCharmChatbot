@@ -16,15 +16,15 @@
 		{ "input_code": 9, "output": "Nice!" },
 		
 		// Quest completed
-		{ "input_code": 10,    "output": "<PLAYER_NAME> is an expert quester!" },
+		{ "input_code": 10, "output": "<PLAYER_NAME> is an expert quester!" },
 		
 		// Diary completed 
-		{ "input_code": 11,    "output": "Good job" },
+		{ "input_code": 11, "output": "Good job" },
 		
 		// Level, Top level, Combat level
-		{ "input_code": [ 14, 15, 16 ],    "output": "Gzzz!" },
+		{ "input_code": [ 14, 15, 16 ], "output": "Gzzz!" },
 		
 		// Boss PB
-		{ "input_code": 17,    "output": "Speedy" }
+		{ "input_code": 17, "output": "Speedy" }
 	]
 }
